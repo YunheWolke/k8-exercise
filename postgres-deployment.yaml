@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1  # for the databases, we can't just increase the replicas of pods simpley, we need extra config, otherwise dasaster appears!!
+  selector:
+    matchLabels:
+      component: postgres
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: database-persistent-volume
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-storage  # the name here should be identical to the volumns name from line 16
+              mountPath: /var/lib/postgresql/data  # here should be the default data saving path of the database in docker container
+              subPath: postgres  # this is the folder name of the persistent volume, that mean what should be saved in mountPath will be saved in the persistent volume under the folder with subPath
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  type: ClusterIP
+  selector:
+    component: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
