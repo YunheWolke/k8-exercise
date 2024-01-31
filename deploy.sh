@@ -6,6 +6,6 @@
 # Deployment command
 kubectl apply -f k8s
 # Make sure the deployed image always the latest
-kubectl set image deployment/client-deployment client=stephengrider/multi-client:latest
-kebuctl set image deployment/server-deployment server=stephengrider/multi-server:latest
-kubectl set image deployment/worker-deployment worker=stephengrider/multi-worker:latest
+kubectl set image deployment/client-deployment client=stephengrider/multi-client:$GIT_SHA
+kebuctl set image deployment/server-deployment server=stephengrider/multi-server:$GIT_SHA
+kubectl set image deployment/worker-deployment worker=stephengrider/multi-worker:$GIT_SHA
